@@ -370,15 +370,15 @@ def _rest_invoke(url, method=u"GET", params=None, files=None, accept=None,
             headers[k] = v
 
         if httpcallback.username or httpcallback.password:
-            print "warning: restclient can't handle HTTP auth yet"
+            print("warning: restclient can't handle HTTP auth yet")
         if httpcallback.redirections != 5:
-            print ("warning: restclient doesn't support "
-                   "HTTPCallback's restrictions yet")
+            print("warning: restclient doesn't support "
+                  "HTTPCallback's restrictions yet")
         if httpcallback.follow_all_redirects:
-            print ("warning: restclient doesn't support "
-                   "HTTPCallback's follow_all_redirects_yet")
+            print("warning: restclient doesn't support "
+                  "HTTPCallback's follow_all_redirects_yet")
         if httpcallback.body != "":
-            print "warning: restclient doesn't support HTTPCallback's body yet"
+            print("warning: restclient doesn't support HTTPCallback's body yet")
 
     headers = add_accepts(accept, headers)
     if method in ['POST', 'PUT'] and 'Content-Type' not in headers:
@@ -574,9 +574,9 @@ def fix_files(files=None):
 
 
 if __name__ == "__main__":
-    print rest_invoke("http://localhost:9090/",
+    print(rest_invoke("http://localhost:9090/",
                       method="POST", params={'value': 'store this'},
-                      accept=["text/plain", "text/html"], do_async=False)
+                      accept=["text/plain", "text/html"], do_async=False))
     image = open('sample.jpg').read()
     r = rest_invoke("http://resizer.ccnmtl.columbia.edu/resize",
                     method="POST",
@@ -592,9 +592,9 @@ if __name__ == "__main__":
                               'filename': 'sample.jpg'}},
              do_async=False)
     # evil unicode tests
-    print rest_invoke(u"http://localhost:9090/foo/",
+    print(rest_invoke(u"http://localhost:9090/foo/",
                       params={u'foo\u2012': u'\u2012'},
-                      headers={u"foo\u2012": u"foo\u2012"})
+                      headers={u"foo\u2012": u"foo\u2012"}))
 
     r = rest_invoke(u"http://localhost:9090/resize", method="POST",
                     files={u'image\u2012': {'file': image,
