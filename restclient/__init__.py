@@ -84,10 +84,9 @@ CHANGESET:
 
 import httplib2
 import mimetypes
-import thread
+import threading
 import types
 import urllib
-import urllib2
 try:
     import json
 except ImportError:
@@ -333,10 +332,10 @@ def rest_invoke(url, method=u"GET", params=None, files=None,
                     example ca_certs='/etc/ssl/certs/ca-certificates.crt'
     """
     if do_async:
-        thread.start_new_thread(_rest_invoke,
-                                (url, method, params, files, accept,
-                                 headers, resp, httpcallback, credentials,
-                                 httplib_params))
+        threading.Thread(target=_rest_invoke,
+                         args=(url, method, params, files, accept,
+                               headers, resp, httpcallback, credentials,
+                               httplib_params))
     else:
         return _rest_invoke(url, method, params, files, accept, headers,
                             resp, httpcallback, credentials, httplib_params)
@@ -467,7 +466,7 @@ def extract_path(url):
 
 
 def my_urlparse(url):
-    (scheme, host, path, ps, query, fragment) = urllib2.urlparse.urlparse(url)
+    (scheme, host, path, ps, query, fragment) = urllib.parse.urlparse(url)
     if ps:
         path += ";" + ps
     if query:
