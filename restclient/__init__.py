@@ -175,7 +175,7 @@ def get_content_type(filename):
     return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
 
-def GET(url, params=None, files=None, accept=[], headers=None, async=False,
+def GET(url, params=None, files=None, accept=[], headers=None, do_async=False,
         resp=False, credentials=None, httplib_params=None):
     """ make an HTTP GET request.
 
@@ -185,7 +185,7 @@ def GET(url, params=None, files=None, accept=[], headers=None, async=False,
     in addition, parameters and headers can be specified (as dicts). a
     list of mimetypes to accept may be specified.
 
-    if async=True is passed in, it will perform the request in a new
+    if do_async=True is passed in, it will perform the request in a new
     thread and immediately return nothing.
 
     if resp=True is passed in, it will return a tuple of an httplib2
@@ -193,12 +193,12 @@ def GET(url, params=None, files=None, accept=[], headers=None, async=False,
     """
     return rest_invoke(url=url, method=u"GET", params=params,
                        files=files, accept=accept, headers=headers,
-                       async=async, resp=resp, credentials=credentials,
+                       do_async=do_async, resp=resp, credentials=credentials,
                        httplib_params=httplib_params)
 
 
 def POST(url, params=None, files=None, accept=[], headers=None,
-         async=True, resp=False, credentials=None, httplib_params=None):
+         do_async=True, resp=False, credentials=None, httplib_params=None):
     """ make an HTTP POST request.
 
     performs a POST request to the specified URL.
@@ -216,19 +216,19 @@ def POST(url, params=None, files=None, accept=[], headers=None,
     (nothing) immediately.
 
     To wait for the response and have it return the body of the
-    response, specify async=False.
+    response, specify do_async=False.
 
     if resp=True is passed in, it will return a tuple of an httplib2
     response object and the content instead of just the content.
     """
     return rest_invoke(url=url, method=u"POST", params=params,
                        files=files, accept=accept, headers=headers,
-                       async=async, resp=resp, credentials=credentials,
+                       do_async=do_async, resp=resp, credentials=credentials,
                        httplib_params=httplib_params)
 
 
 def PUT(url, params=None, files=None, accept=[], headers=None,
-        async=True, resp=False, credentials=None, httplib_params=None):
+        do_async=True, resp=False, credentials=None, httplib_params=None):
     """ make an HTTP PUT request.
 
     performs a PUT request to the specified URL.
@@ -246,7 +246,7 @@ def PUT(url, params=None, files=None, accept=[], headers=None,
     (nothing) immediately.
 
     To wait for the response and have it return the body of the
-    response, specify async=False.
+    response, specify do_async=False.
 
     if resp=True is passed in, it will return a tuple of an httplib2
     response object and the content instead of just the content.
@@ -254,12 +254,12 @@ def PUT(url, params=None, files=None, accept=[], headers=None,
 
     return rest_invoke(url=url, method=u"PUT", params=params,
                        files=files, accept=accept, headers=headers,
-                       async=async, resp=resp, credentials=credentials,
+                       do_async=do_async, resp=resp, credentials=credentials,
                        httplib_params=httplib_params)
 
 
 def DELETE(url, params=None, files=None, accept=[], headers=None,
-           async=True, resp=False, credentials=None,
+           do_async=True, resp=False, credentials=None,
            httplib_params=None):
     """ make an HTTP DELETE request.
 
@@ -272,7 +272,7 @@ def DELETE(url, params=None, files=None, accept=[], headers=None,
     returns (nothing) immediately.
 
     To wait for the response and have it return the body of the
-    response, specify async=False.
+    response, specify do_async=False.
 
     if resp=True is passed in, it will return a tuple of an httplib2
     response object and the content instead of just the content.
@@ -280,12 +280,12 @@ def DELETE(url, params=None, files=None, accept=[], headers=None,
 
     return rest_invoke(url=url, method=u"DELETE", params=params,
                        files=files, accept=accept, headers=headers,
-                       async=async, resp=resp, credentials=credentials,
+                       do_async=do_async, resp=resp, credentials=credentials,
                        httplib_params=httplib_params)
 
 
 def rest_invoke(url, method=u"GET", params=None, files=None,
-                accept=[], headers=None, async=False, resp=False,
+                accept=[], headers=None, do_async=False, resp=False,
                 httpcallback=None, credentials=None,
                 httplib_params=None):
     """ make an HTTP request with all the trimmings.
@@ -322,7 +322,7 @@ def rest_invoke(url, method=u"GET", params=None, files=None,
     accept: list of mimetypes to accept in order of
             preference. defaults to '*/*'
     headers: dictionary of additional headers to send to the server
-    async: Boolean. if true, does request in new thread and nothing is
+    do_async: Boolean. if true, does request in new thread and nothing is
            returned
     resp: Boolean. if true, returns a tuple of response,
           content. otherwise returns just content
@@ -332,7 +332,7 @@ def rest_invoke(url, method=u"GET", params=None, files=None,
     httplib_params: dict of parameters supplied to httplib2 - for
                     example ca_certs='/etc/ssl/certs/ca-certificates.crt'
     """
-    if async:
+    if do_async:
         thread.start_new_thread(_rest_invoke,
                                 (url, method, params, files, accept,
                                  headers, resp, httpcallback, credentials,
@@ -576,13 +576,13 @@ def fix_files(files=None):
 if __name__ == "__main__":
     print rest_invoke("http://localhost:9090/",
                       method="POST", params={'value': 'store this'},
-                      accept=["text/plain", "text/html"], async=False)
+                      accept=["text/plain", "text/html"], do_async=False)
     image = open('sample.jpg').read()
     r = rest_invoke("http://resizer.ccnmtl.columbia.edu/resize",
                     method="POST",
                     files={'image': {'file': image,
                                      'filename': 'sample.jpg'}},
-                    async=False)
+                    do_async=False)
     out = open("thumb.jpg", "w")
     out.write(r)
     out.close()
@@ -590,7 +590,7 @@ if __name__ == "__main__":
     r = POST("http://resizer.ccnmtl.columbia.edu/resize",
              files={'image': {'file': image,
                               'filename': 'sample.jpg'}},
-             async=False)
+             do_async=False)
     # evil unicode tests
     print rest_invoke(u"http://localhost:9090/foo/",
                       params={u'foo\u2012': u'\u2012'},
@@ -599,4 +599,4 @@ if __name__ == "__main__":
     r = rest_invoke(u"http://localhost:9090/resize", method="POST",
                     files={u'image\u2012': {'file': image,
                                             'filename': u'samp\u2012le.jpg'}},
-                    async=False)
+                    do_async=False)

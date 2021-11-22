@@ -60,7 +60,7 @@ def test_post():
         test_url,
         params={'value': 'store this'},
         accept=["text/plain", "text/html"],
-        async=False)
+        do_async=False)
     assert r == default_body
     assert HTTPretty.last_request.method == "POST"
     assert HTTPretty.last_request.headers['accept'] == "text/plain,text/html"
