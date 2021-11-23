@@ -382,13 +382,13 @@ def _rest_invoke(url, method=u"GET", params=None, files=None, accept=None,
     headers = add_accepts(accept, headers)
     if method in ['POST', 'PUT'] and 'Content-Type' not in headers:
         headers['Content-Type'] = 'application/x-www-form-urlencoded'
-        params = urllib.urlencode(fix_params(params))
+        params = urllib.parse.urlencode(fix_params(params))
     elif (method in ['POST', 'PUT'] and
           headers['Content-Type'] == 'application/json'):
         params = json.dumps(params)
     else:
         # GET and DELETE requests
-        params = urllib.urlencode(fix_params(params))
+        params = urllib.parse.urlencode(fix_params(params))
 
     if files:
         return post_multipart(extract_host(url), extract_path(url),
@@ -436,16 +436,16 @@ def non_multipart(params, host, method, path, headers, return_resp,
     if credentials:
         h.add_credentials(*credentials)
     url = "%s://%s%s" % (scheme, host, path)
-    resp, content = h.request(url, method.encode('utf-8'),
-                              params.encode('utf-8'), headers)
+    resp, content = h.request(url, method,
+                              params, headers)
     # reset httplib2 debuglevel to original value
     httplib2.debuglevel = orig_debuglevel
     # if the content-type is JSON, then convert back to objects.
     if resp['content-type'].startswith('application/json'):
         content = json.loads(content)
-    elif method == 'GET' and content.startswith('{') and content.endswith('}'):
+    elif method == 'GET' and content.startswith(b'{') and content.endswith(b'}'):
         content = json.loads(content)
-    elif method == 'GET' and content.startswith('[') and content.endswith(']'):
+    elif method == 'GET' and content.startswith(b'[') and content.endswith(b']'):
         content = json.loads(content)
     if return_resp:
         return resp, content
@@ -499,7 +499,7 @@ def fix_params(params=None):
     if params is None:
         params = {}
     for k in params.keys():
-        if type(k) not in types.StringTypes:
+        if not isinstance(k, str):
             new_k = str(k)
             params[new_k] = params[k]
             del params[k]
@@ -514,7 +514,7 @@ def fix_params(params=None):
                 pass
 
     for k in params.keys():
-        if type(params[k]) not in types.StringTypes:
+        if not isinstance(params[k], str):
             params[k] = str(params[k])
         try:
             params[k].encode('ascii')
@@ -531,11 +531,11 @@ def fix_headers(headers=None):
     if headers is None:
         headers = {}
     for k in headers.keys():
-        if type(k) not in types.StringTypes:
+        if not isinstance(k, str):
             new_k = str(k)
             headers[new_k] = headers[k]
             del headers[k]
-        if type(headers[k]) not in types.StringTypes:
+        if not isinstance(headers[k], str):
             headers[k] = str(headers[k])
         try:
             headers[k].encode('ascii')
@@ -553,7 +553,7 @@ def fix_files(files=None):
         files = {}
     # fix keys in files
     for k in files.keys():
-        if type(k) not in types.StringTypes:
+        if not isinstance(k, str):
             new_k = str(k)
             files[new_k] = files[k]
             del files[k]
